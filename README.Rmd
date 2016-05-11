@@ -9,10 +9,21 @@ output:
 author: "Marcus W. Beck, beck.marcus@epa.gov"
 ---
 
-```{r echo = F, message = F}
-
+```{r echo = F, message = F, cache = F}
+library(SWMPr)
+library(dplyr)
+library(tidyr)
+source('R/funcs.R')
 ```
 
 ### Evaluating metabolism 
 
-text....
+#### CTD plots
+
+```{r echo = F, message = F}
+data(wq_2015)
+
+ctd_time(wq_2015)
+
+```
+

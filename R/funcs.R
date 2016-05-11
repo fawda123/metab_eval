@@ -16,14 +16,14 @@ ctd_time <- function(dat_in, num_levs = 8, var = 'do_mgl', ylab = 'Depth (m)',
   
   library(dplyr) 
   
-  browser()
-  
+  # timezone for datetimestamp back to posix
+  tz <- attr(dat_in$datetimestamp, 'tzone')
+
   # interp for plot
-  
   # first create new grid
-  uni_dts <- sort(unique(dat_in$Date))
-  dists <- unique(dat_in$dist)
-  num_int <- 200
+  uni_dts <- sort(unique(dat_in$depth))
+  dists <- unique(dat_in$datetimestamp)
+  
   new_grd <- expand.grid(
       approx(dists, n = num_int)$y, 
       approx(uni_dts, n = num_int)$y
@@ -34,17 +34,17 @@ ctd_time <- function(dat_in, num_levs = 8, var = 'do_mgl', ylab = 'Depth (m)',
     obj = list(  
       x = dists, 
       y = uni_dts, 
-      z = do_mat[,-1]), 
+      z = dat_in[, var]), 
     loc = new_grd
     )
-  do_mat <- cbind(new_grd, int_val)
-  names(do_mat) <- c('Distance', 'Date', 'DO')
-  do_mat <- spread(do_mat, Date, DO)
-  if(dat_out) return(do_mat)
+  out_mat <- cbind(new_grd, int_val)
+  names(out_mat) <- c('Time', 'Depth', 'var')
+browser()
+  if(dat_out) return(out_mat)
   
-  x.val <- as.numeric(names(do_mat)[-1])
-  y.val <- do_mat$Distance
-  z.val <- as.matrix(do_mat[, -1])
+  x.val <- as.numeric(names(out_mat)[-1])
+  y.val <- out_mat$Depth
+  z.val <- as.matrix(out_mat[, -1])
   in_col <- colorRampPalette(cols)
   
   # function to transpose
