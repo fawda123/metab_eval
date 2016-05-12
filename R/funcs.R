@@ -12,67 +12,89 @@
 # dat_out logical to return data used to create plot
 ctd_time <- function(dat_in, num_levs = 8, var = 'do_mgl', ylab = 'Depth (m)',
   cols = c('tomato', 'lightblue', 'lightgreen','green'),
-  ncol = 100, num_int = 200, dat_out = FALSE){
+  ncol = 100, num_int = 100, dat_out = FALSE, deprng = c(0.35, 3.1), 
+  dtrng = NULL, aggs = TRUE){
   
   library(dplyr) 
+  library(tidyr)
+  library(akima)
   
   # timezone for datetimestamp back to posix
   tz <- attr(dat_in$datetimestamp, 'tzone')
 
-  # interp for plot
-  # first create new grid
-  uni_dts <- sort(unique(dat_in$depth))
-  dists <- unique(dat_in$datetimestamp)
-  
-  new_grd <- expand.grid(
-      approx(dists, n = num_int)$y, 
-      approx(uni_dts, n = num_int)$y
-      )
-  
-  # then interp
-  int_val <- fields::interp.surface(
-    obj = list(  
-      x = dists, 
-      y = uni_dts, 
-      z = dat_in[, var]), 
-    loc = new_grd
-    )
-  out_mat <- cbind(new_grd, int_val)
-  names(out_mat) <- c('Time', 'Depth', 'var')
-browser()
-  if(dat_out) return(out_mat)
-  
-  x.val <- as.numeric(names(out_mat)[-1])
-  y.val <- out_mat$Depth
-  z.val <- as.matrix(out_mat[, -1])
+  # dtrng is data record if empty
+  if(is.null(dtrng)) dtrng <- range(as.Date(dat_in$datetimestamp))
+
+  # safety check for aggby hour
+  if(diff(dtrng) > 31 & aggs == FALSE) 
+    stop('Cannot aggregate by hour for more than one month')
+
+  # data format
+  dat_mat <- dat_in
+  names(dat_mat)[names(dat_mat) %in% var] <- 'varcol'
+  dat_mat <- select(dat_mat, datetimestamp, depth, varcol) %>% 
+    filter(
+      depth <= deprng[2] & depth >= deprng[1]
+      ) %>% 
+    mutate(
+      date = as.Date(datetimestamp),
+      depth = round(depth, 1)
+      ) %>% 
+    filter(date >= dtrng[1] & date <= dtrng[2]) 
+
+  # agg by days if true
+  if(aggs){
+    
+    dat_mat <- group_by(dat_mat, date, depth) %>% 
+      summarize(varcol = mean(varcol)) %>% 
+      ungroup
+    
+  } else {
+    
+    dat_mat <- group_by(dat_mat, datetimestamp, depth) %>% 
+      summarize(varcol = mean(varcol)) %>% 
+      ungroup %>% 
+      rename(date = datetimestamp)
+    
+  }
+
+  newvals <- interp(
+    x = dat_mat$date, 
+    y = dat_mat$depth,
+    z = dat_mat$varcol, 
+    nx = num_int, ny = num_int
+  )
+    
+  # spread, get separate variables
+  x.val <- newvals$x
+  y.val <- newvals$y
+  z.val <- newvals$z
   in_col <- colorRampPalette(cols)
-  
-  # function to transpose
-  rotate <- function(x) t(apply(x, 2, rev))
   
   # plot margins
   plot.new()
-  par(new = "TRUE",plt = c(0.1,0.83,0.15,0.9),las = 1,cex.axis = 1)
+  par(new = "TRUE",plt = c(0.1,0.87,0.15,0.9),las = 1,cex.axis = 1)
   
   # contour plot with isolines
-  filled.contour3(x = x.val, y = -1 * rev(y.val), z = rotate(z.val),
+  filled.contour3(x = x.val,  y = y.val, z = z.val,
     color.palette = in_col, ylab = ylab,
     nlevels = ncol, # for smoothed colors
-    axes = F)
-  contour(x = x.val, y =  -1 * rev(y.val), z = rotate(z.val), nlevels= num_levs,
-    axes = F, add = T)
+    axes = F, ylim = rev(range(y.val)))
+  contour(x = x.val, y =  y.val, z = z.val, nlevels= num_levs,
+    axes = F, add = T, ylim = rev(range(y.val)))
   
   # axis labels
-  axis(side = 2, at = -1 * seq(0, 35, by = 5), labels = seq(0, 35, by = 5))
-  axis.Date(side = 3, x = as.Date(x.val), format = '%m-%Y')
-  axis(side = 1, at = uni_dts, labels = uni_dts, tick = F, cex.axis = 0.5, las = 2, line = -0.5)
-  axis(side = 4, at = -1 * rev(dists), labels = rev(unique(dat_in$Station)), tick = F, 
-    cex.axis = 0.5, las = 1, line = -0.5)
+  axis(side = 2)
+  if(aggs){
+    axis.Date(side = 1, x = as.Date(x.val, origin = '1970-01-01'), format = '%m-%Y')
+  } else {
+    axis.POSIXct(side = 1, x = as.POSIXct(x.val, origin = '1970-01-01', tz = tz))
+  }
   box()
   
   # legend
   par(new = "TRUE", plt = c(0.90,0.94,0.15,0.9), las = 1,cex.axis = 1)
-  filled.legend(x.val,y.val,rotate(z.val),color=in_col,xlab = "",
+  filled.legend(x.val,y.val,z.val,color=in_col,xlab = "",
     nlevels = num_levs,
     ylab = "",
     ylim = c(min(z.val),max(z.val)))
