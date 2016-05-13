@@ -1,6 +1,6 @@
 ######
-# plot bottom DO from CTD by distance and time  
-# returns an interpolated two contour plot using methods similar to ctd_plot
+# plot CTD data by depth and time
+# returns an interpolated contour plot
 #
 # dat_in input ctd data, all dates and stations
 # num_levs number of contour levels
@@ -9,10 +9,12 @@
 # cols color vector
 # ncol number of colors for smoothing plot
 # num_int length of sequenced depth, time variables for interpolation
-# dat_out logical to return data used to create plot
+# deprng depth range to plot
+# dtrng date range to plot (date object)
+# aggs data are averaged by day if TRUE
 ctd_time <- function(dat_in, num_levs = 8, var = 'do_mgl', ylab = 'Depth (m)',
   cols = c('tomato', 'lightblue', 'lightgreen','green'),
-  ncol = 100, num_int = 100, dat_out = FALSE, deprng = c(0.35, 3.1), 
+  ncol = 100, num_int = 100, deprng = c(0.35, 3.1), 
   dtrng = NULL, aggs = TRUE){
   
   library(dplyr) 
