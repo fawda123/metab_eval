@@ -3,6 +3,7 @@ library(tidyr)
 library(purrr)
 library(lubridate)
 library(SWMPr)
+# devtools::load_all('M:/docs/SWMPr')
 
 strReverse <- function(x)
         sapply(lapply(strsplit(x, NULL), rev), paste, collapse="")
@@ -40,6 +41,10 @@ met_2015 <- select(met, yeardata, jday, timedata, Air.Temperature, Barometric.Pr
 # add metabolic days to met
 met_2015 <- metab_day(met_2015, tz = tz, lat = lat, long = long)
 
+# save met
+save(met_2015, file = 'data/met_2015.RData', compress = 'xz')
+
+##
 # format wq  
 wq_2015 <- read.csv('ignore/Middle_BayHyd.csv', skip = 20) %>% 
   filter(Water.Height.Flag == 3 & Water.Temp.Flag == 3 & Salinity.Flag == 3 & DO.mg.L.Flag == 3) %>% 
@@ -57,11 +62,14 @@ wq_2015 <- read.csv('ignore/Middle_BayHyd.csv', skip = 20) %>%
     datetimestamp = as.POSIXct(paste(Year, Julian.Day, hours, mins), format = '%Y %j %H %M', tz = 'America/Regina'), 
     datetimestamp = round_date(datetimestamp, unit = 'hour')
   ) %>% 
-  select(datetimestamp, depth, temp, sal, do_mgl)
+  select(datetimestamp, depth, temp, sal, do_mgl) %>% 
+  mutate(depth = plyr::round_any(depth, 0.5)) %>% 
+  filter(depth < 3.5)
+
+# put zero depth to 0.5, rounding error
+wq_2015$depth[wq_2015$depth == 0] <- 0.5
 
 # add metabolic days to wq
 wq_2015 <- metab_day(wq_2015, tz = tz, lat = lat, long = long)
 
-save(met_2015, file = 'data/met_2015.RData', compress = 'xz')
 save(wq_2015, file = 'data/wq_2015.RData', compress = 'xz')
-    
