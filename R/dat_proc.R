@@ -2,9 +2,15 @@ library(dplyr)
 library(tidyr)
 library(purrr)
 library(lubridate)
+library(SWMPr)
 
 strReverse <- function(x)
         sapply(lapply(strsplit(x, NULL), rev), paste, collapse="")
+
+# middle bay lighthouse metadata
+lat <- 30.4367
+long <- -88.0117
+tz <- 'America/Regina'
 
 ######
 # raw data processing
@@ -31,6 +37,9 @@ met_2015 <- select(met, yeardata, jday, timedata, Air.Temperature, Barometric.Pr
   select(datetimestamp, atemp, bp, wspd) %>% 
   setstep(., 'datetimestamp', 60)
 
+# add metabolic days to met
+met_2015 <- metab_day(met_2015, tz = tz, lat = lat, long = long)
+
 # format wq  
 wq_2015 <- read.csv('ignore/Middle_BayHyd.csv', skip = 20) %>% 
   filter(Water.Height.Flag == 3 & Water.Temp.Flag == 3 & Salinity.Flag == 3 & DO.mg.L.Flag == 3) %>% 
@@ -49,6 +58,9 @@ wq_2015 <- read.csv('ignore/Middle_BayHyd.csv', skip = 20) %>%
     datetimestamp = round_date(datetimestamp, unit = 'hour')
   ) %>% 
   select(datetimestamp, depth, temp, sal, do_mgl)
+
+# add metabolic days to wq
+wq_2015 <- metab_day(wq_2015, tz = tz, lat = lat, long = long)
 
 save(met_2015, file = 'data/met_2015.RData', compress = 'xz')
 save(wq_2015, file = 'data/wq_2015.RData', compress = 'xz')
