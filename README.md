@@ -7,4 +7,4 @@ Marcus W. Beck, beck.marcus@epa.gov
 
 Shiny app [here](https://beckmw.shinyapps.io/metab_eval/)
 
-<a href="https://beckmw.shinyapps.io/metab_eval/"><img src = "screenshot.png"></a>
+<a href="https://beckmw.shinyapps.io/metab_eval/"><img src = "screenshot.PNG"></a>
