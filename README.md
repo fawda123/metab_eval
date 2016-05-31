@@ -5,4 +5,6 @@ Marcus W. Beck, beck.marcus@epa.gov
 
 ### Evaluating metabolism 
 
-text....
+Shiny app [here](https://beckmw.shinyapps.io/metab_eval/)
+
+<a href="https://beckmw.shinyapps.io/metab_eval/"><img src = "screenshot.png"></a>
