@@ -12,13 +12,13 @@ met_2015$date <- as.Date(met_2015$datetimestamp)
 # Define server logic required to generate and plot data
 shinyServer(function(input, output, session) {
   
-  output$col1 <- renderUI({
+  output$col <- renderUI({
 
     varin1 <- input$varin1
     
     if(varin1 %in% c('do_mgl', 'sal', 'temp')){
       
-      selectInput(inputId = 'col1',
+      selectInput(inputId = 'col',
         label = h4('Color variable top'),
         choices = c('depth', 'solar_period'), 
         selected = 'depth'
@@ -26,32 +26,8 @@ shinyServer(function(input, output, session) {
 
     } else {
   
-      selectInput(inputId = 'col1',
+      selectInput(inputId = 'col',
         label = h4('Color variable top'),
-        choices = c('solar_period'), 
-        selected = 'solar_period'
-      )
-      
-    }
-  
-  })
-  
-  output$col2 <- renderUI({
-
-    varin2 <- input$varin2
-
-    if(varin2 %in% c('do_mgl', 'sal', 'temp')){
-      
-      selectInput(inputId = 'col2',
-        label = h4('Color variable bottom'),
-        choices = c('depth', 'solar_period'), 
-        selected = 'depth'
-      )
-
-    } else {
-  
-      selectInput(inputId = 'col2',
-        label = h4('Color variable bottom'),
         choices = c('solar_period'), 
         selected = 'solar_period'
       )
@@ -103,8 +79,8 @@ shinyServer(function(input, output, session) {
   
     varin <- input$varin1
     dtrng <- input$dtrng
-    col1 <- input$col1
-    colpal1 <- input$colpal1 
+    col <- input$col
+    colpal <- input$colpal 
 
     # use wx data if applicalbe
     if(varin %in% c('bp', 'atemp', 'wspd')){ 
@@ -123,7 +99,7 @@ shinyServer(function(input, output, session) {
     # format data
     toplo <- filter(toplo, date >= dtrng[1] & date <= dtrng[2])
     names(toplo)[names(toplo) %in% varin] <- 'yvar'
-    names(toplo)[names(toplo) %in% col1] <- 'col'      
+    names(toplo)[names(toplo) %in% col] <- 'col'      
   
     ggplot(toplo, aes(x = datetimestamp, y = yvar, group = grp, colour = col)) + 
       geom_line() +
@@ -137,7 +113,7 @@ shinyServer(function(input, output, session) {
         legend.position = 'top', 
         legend.title = element_blank()
       ) +
-      scale_colour_brewer(palette = colpal1)
+      scale_colour_brewer(palette = colpal)
     
     })
   
@@ -146,10 +122,10 @@ shinyServer(function(input, output, session) {
   
     varin <- input$varin2
     dtrng <- input$dtrng
-    col2 <- input$col2
-    colpal2 <- input$colpal2
+    col <- input$col
+    colpal <- input$colpal
 
-    # use wx data if applicalbe
+    # use wx data if applicable
     if(varin %in% c('bp', 'atemp', 'wspd')){ 
       
       toplo <- met_2015
@@ -166,7 +142,7 @@ shinyServer(function(input, output, session) {
     # format data
     toplo <- filter(toplo, date >= dtrng[1] & date <= dtrng[2])
     names(toplo)[names(toplo) %in% varin] <- 'yvar'
-    names(toplo)[names(toplo) %in% col2] <- 'col'      
+    names(toplo)[names(toplo) %in% col] <- 'col'      
   
     ggplot(toplo, aes(x = datetimestamp, y = yvar, group = grp, colour = col)) + 
       geom_line() +
@@ -180,7 +156,7 @@ shinyServer(function(input, output, session) {
         legend.position = 'top', 
         legend.title = element_blank()
       ) +
-      scale_colour_brewer(palette = colpal2)
+      scale_colour_brewer(palette = colpal)
     
     })
   

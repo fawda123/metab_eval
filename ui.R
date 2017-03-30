@@ -17,7 +17,7 @@ shinyUI(fluidPage(
   
   fluidRow(
     
-    column(width = 2,
+    column(width = 3,
               
         selectInput(inputId = 'varin1',
             label = h4('Plot variable top'),
@@ -27,7 +27,7 @@ shinyUI(fluidPage(
           
         ),
             
-    column(width = 2,
+    column(width = 3,
       
       selectInput(inputId = 'varin2',
           label = h4('Plot variable bottom'),
@@ -37,7 +37,7 @@ shinyUI(fluidPage(
               
       ),  
     
-    column(width = 4, 
+    column(width = 6, 
             
       sliderInput('dtrng', label = h4('Date range'),
         min = dts[1], max = dts[2], value = dts)
@@ -140,30 +140,14 @@ shinyUI(fluidPage(
           
         column(width = 2,
        
-          uiOutput('col1')
+          uiOutput('col')
           
         ),
         
         column(width = 2,
        
-          selectInput(inputId = 'colpal1',
-                  label = h4('Color palette top'),
-                  choices = row.names(brewer.pal.info), 
-                  selected = 'Spectral'
-                )
-          
-        ),
-        
-        column(width = 2,
-       
-          uiOutput('col2')
-          
-        ), 
-        
-        column(width = 2,
-       
-          selectInput(inputId = 'colpal2',
-                  label = h4('Color palette bottom'),
+          selectInput(inputId = 'colpal',
+                  label = h4('Color palette'),
                   choices = row.names(brewer.pal.info), 
                   selected = 'Spectral'
                 )
