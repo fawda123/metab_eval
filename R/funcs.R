@@ -15,7 +15,7 @@
 ctd_time <- function(dat_in, num_levs = 8, var = 'do_mgl', ylab = 'Depth (m)',
   cols = c('tomato', 'lightblue', 'lightgreen','green'),
   ncol = 100, num_int = 100, deprng = c(0.35, 3.1), 
-  dtrng = NULL, aggs = TRUE){
+  dtrng = NULL, aggs = TRUE, lines = TRUE, mix = FALSE){
   
   library(dplyr) 
   library(tidyr)
@@ -77,14 +77,28 @@ ctd_time <- function(dat_in, num_levs = 8, var = 'do_mgl', ylab = 'Depth (m)',
   plot.new()
   par(new = "TRUE",plt = c(0.1,0.87,0.15,0.9),las = 1,cex.axis = 1)
   
-  # contour plot with isolines
+  # contour plot
   filled.contour3(x = x.val,  y = y.val, z = z.val,
     color.palette = in_col, ylab = ylab,
     nlevels = ncol, # for smoothed colors
     axes = F, ylim = rev(range(y.val)))
-  contour(x = x.val, y =  y.val, z = z.val, nlevels= num_levs,
-    axes = F, add = T, ylim = rev(range(y.val)))
+
+  # isolines if T
+  if(lines){
+    contour(x = x.val, y =  y.val, z = z.val, nlevels= num_levs,
+      axes = F, add = T, ylim = rev(range(y.val)))
+  }
   
+  # add mixing layer depth
+  if(mix & !aggs){
+     
+    pycno <- select(dat_in, datetimestamp, pycno) %>% 
+      unique
+  
+    lines(pycno$datetimestamp, pycno$pycno)
+    
+  }
+    
   # axis labels
   axis(side = 2)
   if(aggs){
