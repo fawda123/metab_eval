@@ -3,11 +3,12 @@ library(dplyr)
 library(ggplot2)
 library(RColorBrewer)
 
-data(wq_2015)
-data(met_2015)
+data(datest)
+datest$date <- as.Date(datest$datetimestamp)
 
-wq_2015$date <- as.Date(wq_2015$datetimestamp)
-met_2015$date <- as.Date(met_2015$datetimestamp)
+datest <- select(datest, -n2, -kv, -dv) %>% 
+  rename(depth = binmd) %>% 
+  na.omit
 
 # Define server logic required to generate and plot data
 shinyServer(function(input, output, session) {
@@ -16,7 +17,7 @@ shinyServer(function(input, output, session) {
 
     varin1 <- input$varin1
     
-    if(varin1 %in% c('do_mgl', 'sal', 'temp')){
+    if(varin1 %in% c('do', 'sal', 'temp', 'sig')){
       
       selectInput(inputId = 'col',
         label = h4('Color variable top'),
@@ -45,13 +46,14 @@ shinyServer(function(input, output, session) {
     ncol <- input$ncol
     deprng <- input$deprng
     dtrng <- input$dtrng
-    aggs <- input$aggs
+    aggs <- as.logical(input$aggs)
+    zmix <- as.logical(input$zmix)
     
     # default to do_mgl if varin is a wx variable
     if(varin %in% c('bp', 'atemp', 'wspd')) return(NULL)
     
-    ctd_time(wq_2015, var = varin, num_int = num_int, ncol = ncol, num_levs = num_levs, deprng = deprng,
-      dtrng = dtrng, aggs = aggs)
+    ctd_time(datest, var = varin, num_int = num_int, ncol = ncol, num_levs = num_levs, deprng = deprng,
+      dtrng = dtrng, aggs = aggs, mix = zmix)
     
     })
   
@@ -64,13 +66,14 @@ shinyServer(function(input, output, session) {
     ncol <- input$ncol
     deprng <- input$deprng
     dtrng <- input$dtrng
-    aggs <- input$aggs
+    aggs <- as.logical(input$aggs)
+    zmix <- as.logical(input$zmix)
     
     # default to do_mgl if varin is a wx variable
     if(varin %in% c('bp', 'atemp', 'wspd')) return(NULL)
     
-    ctd_time(wq_2015, var = varin, num_int = num_int, ncol = ncol, num_levs = num_levs, deprng = deprng,
-      dtrng = dtrng, aggs = aggs)
+    ctd_time(datest, var = varin, num_int = num_int, ncol = ncol, num_levs = num_levs, deprng = deprng,
+      dtrng = dtrng, aggs = aggs, lines = !zmix, mix = zmix)
     
     })
   
@@ -90,7 +93,7 @@ shinyServer(function(input, output, session) {
       
     } else {
       
-      toplo <- wq_2015
+      toplo <- datest
       toplo$depth <- factor(toplo$depth)
       toplo$grp <- toplo$depth
       
@@ -133,7 +136,7 @@ shinyServer(function(input, output, session) {
       
     } else {
       
-      toplo <- wq_2015
+      toplo <- datest
       toplo$depth <- factor(toplo$depth)
       toplo$grp <- toplo$depth
       

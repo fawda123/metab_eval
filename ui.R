@@ -3,7 +3,6 @@ library(dplyr)
 library(RColorBrewer)
 
 source('R/funcs.R')
-data(wq_2015)
 
 dts <- as.Date(c('2015-01-01', '2015-12-31'))
 
@@ -17,25 +16,35 @@ shinyUI(fluidPage(
   
   fluidRow(
     
-    column(width = 3,
+    column(width = 2,
               
         selectInput(inputId = 'varin1',
-            label = h4('Plot variable top'),
-            choices = c('temp', 'sal', 'do_mgl', 'atemp', 'bp', 'wspd'), 
-            selected = 'do_mgl'
+            label = h4('Plot top'),
+            choices = c('temp', 'sal', 'do', 'sig', 'atemp', 'bp', 'wspd'), 
+            selected = 'do'
           )
           
         ),
             
-    column(width = 3,
+    column(width = 2,
       
       selectInput(inputId = 'varin2',
-          label = h4('Plot variable bottom'),
-          choices = c('temp', 'sal', 'do_mgl', 'atemp', 'bp', 'wspd'), 
+          label = h4('Plot bottom'),
+          choices = c('temp', 'sal', 'do', 'sig', 'atemp', 'bp', 'wspd'), 
           selected = 'sal'
         )
               
       ),  
+    
+    column(width = 2, 
+            
+      selectInput(inputId = 'zmix',
+                  label = h4('Show mixing depth'),
+                  choices = c(T, F), 
+                  selected = F
+                )
+          
+      ),
     
     column(width = 6, 
             
@@ -50,7 +59,7 @@ shinyUI(fluidPage(
     
     tabPanel('CTD contours', 
       
-      #spacing
+      # spacing
       fluidRow(
                        
           # first row of plots

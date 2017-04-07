@@ -31,6 +31,9 @@ ctd_time <- function(dat_in, num_levs = 8, var = 'do_mgl', ylab = 'Depth (m)',
   if(diff(dtrng) > 31 & aggs == FALSE) 
     stop('Cannot aggregate by hour for more than one month')
 
+  if(diff(dtrng) > 31 & mix == TRUE)
+    stop('Cannot show mixing depth for more than one month')
+  
   # data format
   dat_mat <- dat_in
   names(dat_mat)[names(dat_mat) %in% var] <- 'varcol'
@@ -46,6 +49,8 @@ ctd_time <- function(dat_in, num_levs = 8, var = 'do_mgl', ylab = 'Depth (m)',
 
   # agg by days if true
   if(aggs){
+    
+    if(mix) stop('Cannot aggregate if mix = TRUE')
     
     dat_mat <- group_by(dat_mat, date, depth) %>% 
       summarize(varcol = mean(varcol)) %>% 
@@ -84,7 +89,7 @@ ctd_time <- function(dat_in, num_levs = 8, var = 'do_mgl', ylab = 'Depth (m)',
     axes = F, ylim = rev(range(y.val)))
 
   # isolines if T
-  if(lines){
+  if(!mix){
     contour(x = x.val, y =  y.val, z = z.val, nlevels= num_levs,
       axes = F, add = T, ylim = rev(range(y.val)))
   }
@@ -92,10 +97,10 @@ ctd_time <- function(dat_in, num_levs = 8, var = 'do_mgl', ylab = 'Depth (m)',
   # add mixing layer depth
   if(mix & !aggs){
      
-    pycno <- select(dat_in, datetimestamp, pycno) %>% 
+    zmix <- select(dat_in, datetimestamp, zmix) %>% 
       unique
   
-    lines(pycno$datetimestamp, pycno$pycno)
+    lines(zmix$datetimestamp, zmix$zmix)
     
   }
     
