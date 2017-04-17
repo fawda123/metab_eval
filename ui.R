@@ -5,6 +5,7 @@ library(RColorBrewer)
 source('R/funcs.R')
 
 dts <- as.Date(c('2015-01-01', '2015-12-31'))
+data(datest)
 
 # Define UI for application
 shinyUI(fluidPage(
@@ -18,19 +19,19 @@ shinyUI(fluidPage(
     
     column(width = 2,
               
-        selectInput(inputId = 'varin1',
-            label = h4('Plot top'),
-            choices = c('temp', 'sal', 'do', 'sig', 'atemp', 'bp', 'wspd'), 
-            selected = 'do'
-          )
-          
-        ),
+      selectInput(inputId = 'varin1',
+          label = h4('Plot top'),
+          choices = c('temp', 'sal', 'do', 'sig', 'atemp', 'bp', 'wspd', 'ddo', 'dosat', 'ds', 'dv', 'dz'), 
+          selected = 'do'
+        )
+        
+      ),
             
     column(width = 2,
       
       selectInput(inputId = 'varin2',
           label = h4('Plot bottom'),
-          choices = c('temp', 'sal', 'do', 'sig', 'atemp', 'bp', 'wspd'), 
+          choices = c('temp', 'sal', 'do', 'sig', 'atemp', 'bp', 'wspd', 'ddo', 'dosat', 'ds', 'dv', 'dz'), 
           selected = 'sal'
         )
               
@@ -64,19 +65,6 @@ shinyUI(fluidPage(
                        
           # first row of plots
           fluidRow(
-              
-            
-            column(width = 2,
-              
-              numericInput(inputId = 'num_int', 
-                  label = h4('Interpolation points'),
-                  min = 2, 
-                  value = 100, 
-                  max = 1000, 
-                  step = 1
-                )
-              
-            ),
             
             column(width = 2,
               
@@ -179,6 +167,36 @@ shinyUI(fluidPage(
             plotOutput("tsplot2")
           )
           
+      )
+      
+    ),
+    
+    tabPanel('Hourly flux: plots',
+    
+      column(width = 2, 
+        
+         textInput("obs", "Enter time", value = '2015-08-29 23:30')
+           
+         ),
+        
+      column(width = 12, 
+        plotOutput("hrplot1")
+      ),
+      
+       column(width = 12, 
+        plotOutput("hrplot2")
+      ),
+       
+      column(width = 12, 
+        plotOutput("hrplot3")
+      )
+      
+    ), 
+    
+    tabPanel('Hourly flux: data',
+    
+      column(width = 12, 
+        dataTableOutput("hrdat")
       )
       
     )

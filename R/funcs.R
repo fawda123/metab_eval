@@ -16,7 +16,7 @@ ctd_time <- function(dat_in, num_levs = 8, var = 'do_mgl', ylab = 'Depth (m)',
   cols = c('tomato', 'lightblue', 'lightgreen','green'),
   ncol = 100, num_int = 100, deprng = c(0.35, 3.1), 
   dtrng = NULL, aggs = TRUE, lines = TRUE, mix = FALSE){
-  
+
   library(dplyr) 
   library(tidyr)
   library(akima)
