@@ -107,6 +107,7 @@ shinyServer(function(input, output, session) {
     names(toplo)[names(toplo) %in% varin] <- 'yvar'
     names(toplo)[names(toplo) %in% col] <- 'col'      
     toplo <- select(toplo, datetimestamp, yvar, grp, col) %>% 
+      mutate(col = as.numeric(as.character(col))) %>% 
       na.omit
   
     # hr back, forward for flux comparison
@@ -127,7 +128,7 @@ shinyServer(function(input, output, session) {
         legend.position = 'top', 
         legend.title = element_blank()
       ) +
-      scale_colour_brewer(palette = colpal)
+      scale_colour_distiller(palette = colpal)
     
     })
   
@@ -159,6 +160,7 @@ shinyServer(function(input, output, session) {
     names(toplo)[names(toplo) %in% varin] <- 'yvar'
     names(toplo)[names(toplo) %in% col] <- 'col'  
     toplo <- select(toplo, datetimestamp, yvar, grp, col) %>% 
+      mutate(col = as.numeric(as.character(col))) %>% 
       na.omit
   
     # hr back, forward for flux comparison
@@ -179,7 +181,7 @@ shinyServer(function(input, output, session) {
         legend.position = 'top', 
         legend.title = element_blank()
       ) +
-      scale_colour_brewer(palette = colpal)
+      scale_colour_distiller(palette = colpal)
     
     })
   

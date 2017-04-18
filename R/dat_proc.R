@@ -139,7 +139,7 @@
 # tz <- 'America/Regina'
 # 
 # # prep data w/ interpolation
-# datest <- datprep(datall, ny = 8)
+# datest <- datprep(datall, ny = 15)
 # 
 # # get data frame of midpoints and width of each depth bin
 # depsd <- depsd(datest)
